@@ -1,0 +1,37 @@
+server:
+  port: 8080
+
+spring:
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:h2:mem:facturestudio;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE}
+    username: ${SPRING_DATASOURCE_USERNAME:sa}
+    password: ${SPRING_DATASOURCE_PASSWORD:}
+    driver-class-name: ${SPRING_DATASOURCE_DRIVER:org.h2.Driver}
+  h2:
+    console:
+      enabled: true
+  jpa:
+    hibernate:
+      ddl-auto: update
+    open-in-view: false
+
+app:
+  admin:
+    email: ${APP_ADMIN_EMAIL:admin@facturestudio.local}
+    password: ${APP_ADMIN_PASSWORD:Admin12345!}
+    full-name: ${APP_ADMIN_FULL_NAME:Administrateur Facture Studio}
+  jwt:
+    secret: ${APP_JWT_SECRET:replace-this-development-secret-with-a-strong-production-secret-key}
+    expiration-minutes: ${APP_JWT_EXPIRATION_MINUTES:1440}
+  quotas:
+    free-export-limit: ${APP_FREE_EXPORT_LIMIT:5}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus,metrics
+  endpoint:
+    health:
+      probes:
+        enabled: true

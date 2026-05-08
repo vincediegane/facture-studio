@@ -1,0 +1,75 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: facture-studio-postgres
+    environment:
+      POSTGRES_DB: facturestudio
+      POSTGRES_USER: facturestudio
+      POSTGRES_PASSWORD: facturestudio
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U facturestudio -d facturestudio"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  api:
+    build:
+      context: ./backend
+    container_name: facture-studio-api
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/facturestudio
+      SPRING_DATASOURCE_USERNAME: facturestudio
+      SPRING_DATASOURCE_PASSWORD: facturestudio
+      SPRING_DATASOURCE_DRIVER: org.postgresql.Driver
+      APP_JWT_SECRET: change-this-secret-for-production-change-this-secret
+      APP_FREE_EXPORT_LIMIT: 5
+      APP_ADMIN_EMAIL: admin@facturestudio.local
+      APP_ADMIN_PASSWORD: Admin12345!
+      APP_ADMIN_FULL_NAME: Administrateur Facture Studio
+    ports:
+      - "8080:8080"
+
+  web:
+    build:
+      context: .
+      args:
+        VITE_API_BASE_URL: http://127.0.0.1:8080
+    container_name: facture-studio-web
+    depends_on:
+      - api
+    ports:
+      - "3005:80"
+
+  prometheus:
+    image: prom/prometheus:v2.55.1
+    container_name: facture-studio-prometheus
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    ports:
+      - "9090:9090"
+    depends_on:
+      - api
+
+  grafana:
+    image: grafana/grafana:11.3.0
+    container_name: facture-studio-grafana
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: admin
+    ports:
+      - "3006:3000"
+    volumes:
+      - grafana-data:/var/lib/grafana
+    depends_on:
+      - prometheus
+
+volumes:
+  postgres-data:
+  grafana-data:

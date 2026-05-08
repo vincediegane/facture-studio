@@ -1,0 +1,7 @@
+node_modules
+dist
+.tools
+.git
+backend/target
+backend/.mvn
+*.log

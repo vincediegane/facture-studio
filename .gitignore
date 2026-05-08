@@ -1,0 +1,32 @@
+# Dependencies
+node_modules/
+backend/target/
+.tools/
+
+# Builds
+dist/
+build/
+out/
+
+# Runtime data
+*.log
+logs/
+tmp/
+.cache/
+
+# Local environment
+.env
+.env.*
+!.env.example
+
+# IDE / OS
+.idea/
+.vscode/
+*.swp
+Thumbs.db
+Desktop.ini
+
+# Docker / database local artifacts
+postgres-data/
+grafana-data/
+prometheus-data/
