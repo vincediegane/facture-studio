@@ -40,13 +40,15 @@ public class AppUser {
   @Column(nullable = false)
   private Instant createdAt = Instant.now();
 
-  private String stripeCustomerId;
+  private String paymentProvider;
 
-  private String stripeSubscriptionId;
+  private String paymentReference;
 
-  private String subscriptionStatus;
+  private String paymentToken;
 
   private String subscriptionPlan;
+
+  private String subscriptionStatus;
 
   private Instant subscriptionCurrentPeriodEnd;
 
@@ -106,20 +108,28 @@ public class AppUser {
     return createdAt;
   }
 
-  public String getStripeCustomerId() {
-    return stripeCustomerId;
+  public String getPaymentProvider() {
+    return paymentProvider;
   }
 
-  public void setStripeCustomerId(String stripeCustomerId) {
-    this.stripeCustomerId = stripeCustomerId;
+  public void setPaymentProvider(String paymentProvider) {
+    this.paymentProvider = paymentProvider;
   }
 
-  public String getStripeSubscriptionId() {
-    return stripeSubscriptionId;
+  public String getPaymentReference() {
+    return paymentReference;
   }
 
-  public void setStripeSubscriptionId(String stripeSubscriptionId) {
-    this.stripeSubscriptionId = stripeSubscriptionId;
+  public void setPaymentReference(String paymentReference) {
+    this.paymentReference = paymentReference;
+  }
+
+  public String getPaymentToken() {
+    return paymentToken;
+  }
+
+  public void setPaymentToken(String paymentToken) {
+    this.paymentToken = paymentToken;
   }
 
   public String getSubscriptionStatus() {

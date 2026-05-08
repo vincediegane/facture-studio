@@ -185,12 +185,12 @@ function App() {
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-    if (params.get("checkout") === "success") {
+    if (params.get("paydunya") === "success") {
       setStatus("Paiement confirmé. Synchronisation de votre abonnement...");
       if (token) refreshWorkspace(token);
       window.history.replaceState({}, "", window.location.pathname);
     }
-    if (params.get("checkout") === "cancel") {
+    if (params.get("paydunya") === "cancel") {
       setStatus("Paiement annulé. Votre forfait gratuit reste actif.");
       window.history.replaceState({}, "", window.location.pathname);
     }
@@ -273,14 +273,14 @@ function App() {
       return;
     }
     try {
-      const response = await apiRequest("/api/billing/checkout-session", {
+      const response = await apiRequest("/api/billing/paydunya/checkout", {
         token,
         method: "POST",
         body: { plan, paymentMethod },
       });
       window.location.href = response.checkoutUrl;
     } catch (error) {
-      setStatus(error.status === 503 ? "Stripe n'est pas encore configuré côté serveur." : "Impossible de créer le paiement Stripe.");
+      setStatus(error.status === 503 ? "PayDunya n'est pas encore configuré côté serveur." : "Impossible de créer le paiement PayDunya.");
     }
   }
 
@@ -1338,7 +1338,7 @@ function SubscriptionPage({ token, premium, user, openPaywall }) {
       try {
         const response = await apiRequest("/api/billing/subscription", { token });
         setSubscription(response);
-        setSubscriptionStatus(response.stripeConfigured ? "Stripe est configuré pour les paiements." : "Stripe n'est pas encore configuré côté serveur.");
+        setSubscriptionStatus(response.paydunyaConfigured ? "PayDunya est configuré pour les paiements locaux." : "PayDunya n'est pas encore configuré côté serveur.");
       } catch {
         setSubscriptionStatus("Impossible de charger l'abonnement.");
       }
@@ -1353,26 +1353,26 @@ function SubscriptionPage({ token, premium, user, openPaywall }) {
       <div className="dashboard-grid">
         <Metric label="Plan actuel" value={premium ? "Premium" : "Gratuit"} />
         <Metric label="Compte" value={user?.email || "-"} />
-        <Metric label="Offre Stripe" value={planName} />
+        <Metric label="Offre PayDunya" value={planName} />
         <Metric label="Statut" value={subscription?.status || (premium ? "active" : "inactive")} />
       </div>
       <div className="management-grid">
         <section className="panel data-panel">
           <p className="eyebrow">Paiement premium</p>
-          <h3>{premium ? "Votre accès Premium est actif" : "Passez à Premium avec Stripe Checkout"}</h3>
-          <p className="support-text">Le paiement est redirigé vers Stripe Checkout. Le webhook active ensuite le forfait Premium côté backend, qui devient l'autorité pour les quotas.</p>
+          <h3>{premium ? "Votre accès Premium est actif" : "Passez à Premium avec PayDunya"}</h3>
+          <p className="support-text">Le paiement est redirigé vers PayDunya. Le retour ou callback confirme ensuite le paiement côté backend, qui devient l'autorité pour les quotas.</p>
           <button className="primary-button wide" onClick={() => openPaywall("premium-template")} type="button"><CreditCard /><span>{premium ? "Changer d'offre" : "Choisir une offre"}</span></button>
           <p className="support-text">{subscriptionStatus}</p>
         </section>
         <section className="panel data-panel">
-          <p className="eyebrow">À configurer dans Stripe</p>
+          <p className="eyebrow">À configurer dans PayDunya</p>
           <DataTable
             headers={["Variable", "Usage"]}
             rows={[
-              ["STRIPE_SECRET_KEY", "Clé secrète API Stripe"],
-              ["STRIPE_WEBHOOK_SECRET", "Signature du webhook"],
-              ["STRIPE_PREMIUM_PRICE_ID", "Prix mensuel Premium"],
-              ["STRIPE_BRANCHES_PRICE_ID", "Prix mensuel Succursales"],
+              ["PAYDUNYA_MASTER_KEY", "Master key PayDunya"],
+              ["PAYDUNYA_PRIVATE_KEY", "Private key PayDunya"],
+              ["PAYDUNYA_TOKEN", "Token de l'application PayDunya"],
+              ["PAYDUNYA_API_BASE_URL", "Sandbox ou production"],
             ]}
           />
         </section>
@@ -1514,9 +1514,9 @@ function Paywall({ reason, onClose, activatePremium }) {
     { id: "enterprise", name: "Entreprise", price: "Sur devis", cadence: "", description: "Pour grandes organisations.", features: ["Rôles avancés", "Monitoring global", "Accompagnement dédié"] },
   ];
   const methods = [
-    ["mobile-money", "Mobile Money"],
-    ["card", "Carte bancaire"],
-    ["transfer", "Virement"],
+    ["paydunya", "PayDunya Checkout"],
+    ["orange-money-senegal", "Orange Money"],
+    ["wave-senegal", "Wave"],
   ];
   const activePlan = plans.find((plan) => plan.id === selectedPlan) || plans[0];
   return (
@@ -1540,7 +1540,7 @@ function Paywall({ reason, onClose, activatePremium }) {
         </div>
         <div className="checkout-box">
           <div>
-            <p className="eyebrow">Paiement sécurisé</p>
+            <p className="eyebrow">Paiement local sécurisé</p>
             <h4>{activePlan.name} · {activePlan.price}{activePlan.cadence}</h4>
           </div>
           <div className="payment-methods" role="group" aria-label="Méthode de paiement">
@@ -1548,8 +1548,8 @@ function Paywall({ reason, onClose, activatePremium }) {
               <button className={paymentMethod === id ? "selected" : ""} key={id} onClick={() => setPaymentMethod(id)} type="button">{label}</button>
             ))}
           </div>
-          <button className="primary-button wide" onClick={() => activatePremium(selectedPlan, paymentMethod)} type="button"><CreditCard /><span>{selectedPlan === "enterprise" ? "Demander un devis" : "Payer avec Stripe"}</span></button>
-          <small>Vous serez redirigé vers Stripe Checkout. Le forfait est activé après confirmation du webhook.</small>
+          <button className="primary-button wide" onClick={() => activatePremium(selectedPlan, paymentMethod)} type="button"><CreditCard /><span>{selectedPlan === "enterprise" ? "Demander un devis" : "Payer avec PayDunya"}</span></button>
+          <small>Vous serez redirigé vers PayDunya. Le forfait est activé après confirmation du paiement.</small>
         </div>
       </div>
     </div>

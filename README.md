@@ -80,11 +80,11 @@ docker compose down -v
 
 Voir [docs/pricing-packages.md](docs/pricing-packages.md).
 
-## Paiement Stripe
+## Paiement PayDunya
 
-Stripe Checkout est branché côté backend pour activer Premium après confirmation webhook.
+PayDunya Checkout est branché côté backend pour activer Premium après confirmation du paiement.
 
-Voir [docs/stripe-checkout.md](docs/stripe-checkout.md).
+Voir [docs/paydunya-checkout.md](docs/paydunya-checkout.md).
 
 ## Note backend
 
@@ -117,7 +117,7 @@ Agents proposés :
 ## Fonctionnalités à ajouter
 
 - Authentification complète reliée au backend.
-- Paiement Premium via Stripe, PayDunya ou Wave selon le marché cible.
+- Paiement Premium via PayDunya pour le marché local.
 - Historique des factures et duplications rapides.
 - Catalogue clients et produits/services.
 - Envoi email directement depuis la plateforme.

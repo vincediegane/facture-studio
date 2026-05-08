@@ -48,6 +48,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         || ("POST".equalsIgnoreCase(request.getMethod())
             && ("/api/auth/register".equals(path)
                 || "/api/auth/login".equals(path)
-                || "/api/billing/webhook".equals(path)));
+                || "/api/billing/paydunya/callback".equals(path)))
+        || ("GET".equalsIgnoreCase(request.getMethod())
+            && ("/api/billing/paydunya/return".equals(path)
+                || "/api/billing/paydunya/cancel".equals(path)));
   }
 }

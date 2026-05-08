@@ -33,12 +33,16 @@ services:
       APP_ADMIN_EMAIL: admin@facturestudio.local
       APP_ADMIN_PASSWORD: Admin12345!
       APP_ADMIN_FULL_NAME: Administrateur Facture Studio
-      STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY:-}
-      STRIPE_WEBHOOK_SECRET: ${STRIPE_WEBHOOK_SECRET:-}
-      STRIPE_PREMIUM_PRICE_ID: ${STRIPE_PREMIUM_PRICE_ID:-}
-      STRIPE_BRANCHES_PRICE_ID: ${STRIPE_BRANCHES_PRICE_ID:-}
-      STRIPE_SUCCESS_URL: ${STRIPE_SUCCESS_URL:-http://localhost:3005?checkout=success}
-      STRIPE_CANCEL_URL: ${STRIPE_CANCEL_URL:-http://localhost:3005?checkout=cancel}
+      PAYDUNYA_MASTER_KEY: ${PAYDUNYA_MASTER_KEY:-}
+      PAYDUNYA_PRIVATE_KEY: ${PAYDUNYA_PRIVATE_KEY:-}
+      PAYDUNYA_TOKEN: ${PAYDUNYA_TOKEN:-}
+      PAYDUNYA_API_BASE_URL: ${PAYDUNYA_API_BASE_URL:-https://app.paydunya.com/sandbox-api/v1}
+      PAYDUNYA_STORE_NAME: ${PAYDUNYA_STORE_NAME:-Facture Studio}
+      PAYDUNYA_SUCCESS_URL: ${PAYDUNYA_SUCCESS_URL:-http://localhost:8080/api/billing/paydunya/return}
+      PAYDUNYA_CANCEL_URL: ${PAYDUNYA_CANCEL_URL:-http://localhost:8080/api/billing/paydunya/cancel}
+      PAYDUNYA_CALLBACK_URL: ${PAYDUNYA_CALLBACK_URL:-http://localhost:8080/api/billing/paydunya/callback}
+      PAYDUNYA_PREMIUM_AMOUNT: ${PAYDUNYA_PREMIUM_AMOUNT:-4900}
+      PAYDUNYA_BRANCHES_AMOUNT: ${PAYDUNYA_BRANCHES_AMOUNT:-19900}
     ports:
       - "8080:8080"
 

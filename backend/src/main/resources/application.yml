@@ -25,14 +25,18 @@ app:
     expiration-minutes: ${APP_JWT_EXPIRATION_MINUTES:1440}
   quotas:
     free-export-limit: ${APP_FREE_EXPORT_LIMIT:5}
-  stripe:
-    secret-key: ${STRIPE_SECRET_KEY:}
-    webhook-secret: ${STRIPE_WEBHOOK_SECRET:}
-    success-url: ${STRIPE_SUCCESS_URL:http://localhost:3005?checkout=success}
-    cancel-url: ${STRIPE_CANCEL_URL:http://localhost:3005?checkout=cancel}
-    prices:
-      premium: ${STRIPE_PREMIUM_PRICE_ID:}
-      branches: ${STRIPE_BRANCHES_PRICE_ID:}
+  paydunya:
+    master-key: ${PAYDUNYA_MASTER_KEY:}
+    private-key: ${PAYDUNYA_PRIVATE_KEY:}
+    token: ${PAYDUNYA_TOKEN:}
+    api-base-url: ${PAYDUNYA_API_BASE_URL:https://app.paydunya.com/sandbox-api/v1}
+    store-name: ${PAYDUNYA_STORE_NAME:Facture Studio}
+    success-url: ${PAYDUNYA_SUCCESS_URL:http://localhost:8080/api/billing/paydunya/return}
+    cancel-url: ${PAYDUNYA_CANCEL_URL:http://localhost:8080/api/billing/paydunya/cancel}
+    callback-url: ${PAYDUNYA_CALLBACK_URL:http://localhost:8080/api/billing/paydunya/callback}
+    amounts:
+      premium: ${PAYDUNYA_PREMIUM_AMOUNT:4900}
+      branches: ${PAYDUNYA_BRANCHES_AMOUNT:19900}
 
 management:
   endpoints:
