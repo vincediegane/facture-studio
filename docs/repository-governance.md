@@ -15,6 +15,8 @@
 - Utiliser le squash merge pour garder un historique propre.
 - Utiliser des pull requests pour `dev -> staging` et `staging -> prod`.
 - Garder les secrets hors du dépôt et utiliser les secrets GitHub Actions.
+- Définir `dev` comme branche par défaut.
+- Installer l'app GitHub Settings si vous souhaitez appliquer `.github/settings.yml` automatiquement.
 
 ## Environnements
 
