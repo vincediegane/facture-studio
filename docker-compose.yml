@@ -33,6 +33,12 @@ services:
       APP_ADMIN_EMAIL: admin@facturestudio.local
       APP_ADMIN_PASSWORD: Admin12345!
       APP_ADMIN_FULL_NAME: Administrateur Facture Studio
+      STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY:-}
+      STRIPE_WEBHOOK_SECRET: ${STRIPE_WEBHOOK_SECRET:-}
+      STRIPE_PREMIUM_PRICE_ID: ${STRIPE_PREMIUM_PRICE_ID:-}
+      STRIPE_BRANCHES_PRICE_ID: ${STRIPE_BRANCHES_PRICE_ID:-}
+      STRIPE_SUCCESS_URL: ${STRIPE_SUCCESS_URL:-http://localhost:3005?checkout=success}
+      STRIPE_CANCEL_URL: ${STRIPE_CANCEL_URL:-http://localhost:3005?checkout=cancel}
     ports:
       - "8080:8080"
 

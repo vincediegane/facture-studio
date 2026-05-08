@@ -29,6 +29,8 @@ public class SecurityConfig {
         .authorizeHttpRequests(auth -> auth
             .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
             .requestMatchers(HttpMethod.POST, "/api/auth/register", "/api/auth/login").permitAll()
+            .requestMatchers(HttpMethod.POST, "/api/billing/webhook").permitAll()
+            .requestMatchers("/error").permitAll()
             .requestMatchers("/actuator/health", "/actuator/info", "/actuator/prometheus").permitAll()
             .requestMatchers("/h2-console/**").permitAll()
             .anyRequest().authenticated())

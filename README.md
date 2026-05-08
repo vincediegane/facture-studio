@@ -80,6 +80,12 @@ docker compose down -v
 
 Voir [docs/pricing-packages.md](docs/pricing-packages.md).
 
+## Paiement Stripe
+
+Stripe Checkout est branché côté backend pour activer Premium après confirmation webhook.
+
+Voir [docs/stripe-checkout.md](docs/stripe-checkout.md).
+
 ## Note backend
 
 Un dossier `backend/` prépare une API Spring Boot pour l'authentification :

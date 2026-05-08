@@ -19,6 +19,7 @@
   <properties>
     <java.version>17</java.version>
     <jjwt.version>0.12.6</jjwt.version>
+    <stripe.version>31.3.0</stripe.version>
   </properties>
 
   <dependencies>
@@ -72,6 +73,11 @@
       <artifactId>jjwt-jackson</artifactId>
       <version>${jjwt.version}</version>
       <scope>runtime</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.stripe</groupId>
+      <artifactId>stripe-java</artifactId>
+      <version>${stripe.version}</version>
     </dependency>
   </dependencies>
 

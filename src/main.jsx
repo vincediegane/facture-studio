@@ -183,6 +183,19 @@ function App() {
     refreshWorkspace(token);
   }, [token]);
 
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("checkout") === "success") {
+      setStatus("Paiement confirmé. Synchronisation de votre abonnement...");
+      if (token) refreshWorkspace(token);
+      window.history.replaceState({}, "", window.location.pathname);
+    }
+    if (params.get("checkout") === "cancel") {
+      setStatus("Paiement annulé. Votre forfait gratuit reste actif.");
+      window.history.replaceState({}, "", window.location.pathname);
+    }
+  }, [token]);
+
   async function refreshWorkspace(activeToken = token) {
     try {
       setApiStatus("Synchronisation de vos données...");
@@ -248,20 +261,26 @@ function App() {
     setStatus(`Modèle "${template.name}" sélectionné.`);
   }
 
-  async function activatePremium() {
+  async function activatePremium(plan = "premium", paymentMethod = "card") {
     if (!token) {
       setAuthMode("register");
       setView("auth");
       return;
     }
-    try {
-      await apiRequest("/api/billing/premium/mock", { token, method: "POST" });
-      await refreshWorkspace(token);
-      setPremium(true);
+    if (plan === "enterprise") {
+      setStatus("Demande entreprise enregistrée. Un devis pourra être préparé depuis l'admin.");
       setPaywallOpen(false);
-      setStatus("Premium activé.");
-    } catch {
-      setStatus("Impossible d'activer Premium.");
+      return;
+    }
+    try {
+      const response = await apiRequest("/api/billing/checkout-session", {
+        token,
+        method: "POST",
+        body: { plan, paymentMethod },
+      });
+      window.location.href = response.checkoutUrl;
+    } catch (error) {
+      setStatus(error.status === 503 ? "Stripe n'est pas encore configuré côté serveur." : "Impossible de créer le paiement Stripe.");
     }
   }
 
@@ -453,6 +472,7 @@ function App() {
         {view === "orders" && <PurchaseOrdersPage history={history} clients={clients} token={token} setInvoice={setInvoice} setLines={setLines} setView={setView} />}
         {view === "admin" && <AdminPage token={token} user={user} />}
         {view === "monitoring" && <MonitoringPage history={history} />}
+        {view === "subscription" && <SubscriptionPage token={token} premium={premium} user={user} openPaywall={openPaywall} />}
       </main>
       {paywallOpen && <Paywall reason={paywallReason} onClose={() => setPaywallOpen(false)} activatePremium={activatePremium} />}
     </div>
@@ -471,6 +491,7 @@ function Sidebar({ view, setView, status, premium, remaining, user, logout, open
     ["orders", "Bons de commande", CreditCard],
     ["branding", "Branding", Settings],
     ...(isAdmin ? [["admin", "Admin", ShieldCheck]] : []),
+    ["subscription", "Abonnement", Crown],
     ["monitoring", "Monitoring", BarChart3],
     ["export", "Export Excel", FileDown],
   ];
@@ -1308,6 +1329,58 @@ function MonitoringPage({ history }) {
   );
 }
 
+function SubscriptionPage({ token, premium, user, openPaywall }) {
+  const [subscription, setSubscription] = useState(null);
+  const [subscriptionStatus, setSubscriptionStatus] = useState("Chargement de l'abonnement...");
+
+  useEffect(() => {
+    async function loadSubscription() {
+      try {
+        const response = await apiRequest("/api/billing/subscription", { token });
+        setSubscription(response);
+        setSubscriptionStatus(response.stripeConfigured ? "Stripe est configuré pour les paiements." : "Stripe n'est pas encore configuré côté serveur.");
+      } catch {
+        setSubscriptionStatus("Impossible de charger l'abonnement.");
+      }
+    }
+    if (token) loadSubscription();
+  }, [token]);
+
+  const planName = subscription?.subscriptionPlan || (premium ? "premium" : "free");
+  return (
+    <>
+      <Topbar title="Abonnement" subtitle="Gérez votre formule, votre quota et l'activation Premium." />
+      <div className="dashboard-grid">
+        <Metric label="Plan actuel" value={premium ? "Premium" : "Gratuit"} />
+        <Metric label="Compte" value={user?.email || "-"} />
+        <Metric label="Offre Stripe" value={planName} />
+        <Metric label="Statut" value={subscription?.status || (premium ? "active" : "inactive")} />
+      </div>
+      <div className="management-grid">
+        <section className="panel data-panel">
+          <p className="eyebrow">Paiement premium</p>
+          <h3>{premium ? "Votre accès Premium est actif" : "Passez à Premium avec Stripe Checkout"}</h3>
+          <p className="support-text">Le paiement est redirigé vers Stripe Checkout. Le webhook active ensuite le forfait Premium côté backend, qui devient l'autorité pour les quotas.</p>
+          <button className="primary-button wide" onClick={() => openPaywall("premium-template")} type="button"><CreditCard /><span>{premium ? "Changer d'offre" : "Choisir une offre"}</span></button>
+          <p className="support-text">{subscriptionStatus}</p>
+        </section>
+        <section className="panel data-panel">
+          <p className="eyebrow">À configurer dans Stripe</p>
+          <DataTable
+            headers={["Variable", "Usage"]}
+            rows={[
+              ["STRIPE_SECRET_KEY", "Clé secrète API Stripe"],
+              ["STRIPE_WEBHOOK_SECRET", "Signature du webhook"],
+              ["STRIPE_PREMIUM_PRICE_ID", "Prix mensuel Premium"],
+              ["STRIPE_BRANCHES_PRICE_ID", "Prix mensuel Succursales"],
+            ]}
+          />
+        </section>
+      </div>
+    </>
+  );
+}
+
 function DataTable({ headers, rows }) {
   return (
     <div className="table-wrap">
@@ -1475,8 +1548,8 @@ function Paywall({ reason, onClose, activatePremium }) {
               <button className={paymentMethod === id ? "selected" : ""} key={id} onClick={() => setPaymentMethod(id)} type="button">{label}</button>
             ))}
           </div>
-          <button className="primary-button wide" onClick={() => activatePremium(selectedPlan, paymentMethod)} type="button"><CreditCard /><span>{selectedPlan === "enterprise" ? "Demander un devis" : "Payer et activer"}</span></button>
-          <small>Simulation de paiement pour la démo. Le backend active le forfait après validation.</small>
+          <button className="primary-button wide" onClick={() => activatePremium(selectedPlan, paymentMethod)} type="button"><CreditCard /><span>{selectedPlan === "enterprise" ? "Demander un devis" : "Payer avec Stripe"}</span></button>
+          <small>Vous serez redirigé vers Stripe Checkout. Le forfait est activé après confirmation du webhook.</small>
         </div>
       </div>
     </div>

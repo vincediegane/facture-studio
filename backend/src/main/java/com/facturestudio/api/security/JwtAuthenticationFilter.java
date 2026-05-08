@@ -46,6 +46,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     String path = request.getServletPath();
     return "OPTIONS".equalsIgnoreCase(request.getMethod())
         || ("POST".equalsIgnoreCase(request.getMethod())
-            && ("/api/auth/register".equals(path) || "/api/auth/login".equals(path)));
+            && ("/api/auth/register".equals(path)
+                || "/api/auth/login".equals(path)
+                || "/api/billing/webhook".equals(path)));
   }
 }
